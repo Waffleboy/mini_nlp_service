@@ -1,0 +1,6 @@
+spacy==3.0.5
+requests==2.24.0
+pytest==5.4.3
+pony==0.7.14
+beautifulsoup4==4.9.3
+fastapi==0.63.0
