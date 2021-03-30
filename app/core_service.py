@@ -6,16 +6,12 @@ import db_wrapper
 from nlp_wrappers.nlp_wrappers import SpacyNLP
 import logging
 logger = logging.getLogger(__name__)
-nlp_library = SpacyNLP()
 
-# Website specific tags to pick portions of the selected website - TODO
-CUSTOM_URL_PROCESSORS = {}
-
-# in the form of {"url": list of XPATHs to target}
-# eg: CUSTOM_URL_PROCESSORS = {'https://careers.gic.com.sg/job/Singapore-Associate%2C-Machine-Learning-Engineer/638994801/':["//*[@id="content"]/div/div[2]/div/div[1]/div[2]/div[8]/div/div/div"]
+# TODO: abstract these various settings out to configuration files
+nlp_library = SpacyNLP()  # swap out depending on chosen library
 
 
-def run(urls: list) -> list:
+def run(urls: list, xpaths: list = []) -> list:
     """Main method that runs the scraping pipeline on a url.
     Accepts string inputs as well
 
@@ -33,12 +29,13 @@ def run(urls: list) -> list:
     success_results = []
     for url in urls:
         logger.debug("Running scraping for url {}".format(url))
-        # determine url type and get handler for it.
+        # determine url type and get appropriate handler for it.
         handler = determine_input_handler_for_url(url)
-        res = handler(url)
+        res = handler(url, {"xpaths": xpaths})
+        # extract entities in text
         list_of_entities = nlp_library.extract_entities(res)
-
         logger.debug("list of entities detected: {}".format(list_of_entities))
+        # store results in the database
         success = db_wrapper.store_entity_results(list_of_entities, url)
         logger.debug("Db result: {}".format(success))
         success_results.append(success)
@@ -51,21 +48,15 @@ def run(urls: list) -> list:
 """Add handlers here for different filetypes"""
 
 
-def website_handler(url: str) -> str:
+def website_handler(url: str, **kwargs) -> str:
     soup = scrape_link(url)
-    # TODO: add custom preprocessor handling for selected urls (select certain sections etc)
-    if url in CUSTOM_URL_PROCESSORS:
-        # extract targeted sections via xpath and piece them together
-        raise NotImplementedError
-
-    else:
-        # default behavior
-        tags = extract_body_tags(soup)
+    xpaths = kwargs.get('xpaths') if 'xpaths' in kwargs else []
+    tags = extract_tags(soup, xpaths)
     filtered_text = run_preprocessors(tags)
     return filtered_text
 
 
-def csv_handler(url: str) -> str:
+def csv_handler(url: str, **kwargs) -> str:
     raise NotImplementedError
 
 
@@ -110,7 +101,7 @@ def extract_tag_by_xpath(soup: bs4.BeautifulSoup, xpath):
     raise NotImplementedError
 
 
-def extract_body_tags(soup: bs4.BeautifulSoup) -> Type[bs4.element.ResultSet]:
+def extract_tags(soup: bs4.BeautifulSoup, xpaths: list = []) -> Type[bs4.element.ResultSet]:
     """Extracts the body from the given soup object, runs
     a preprocessor and returns the cleaned text
 
@@ -120,8 +111,11 @@ def extract_body_tags(soup: bs4.BeautifulSoup) -> Type[bs4.element.ResultSet]:
     Returns:
         str: cleaned body text
     """
-    body = soup.find('body')
-    relevant_text_tags = body.find_all(text=True)
+    if xpaths:  # TODO
+        raise NotImplementedError
+    else:
+        body = soup.find('body')
+        relevant_text_tags = body.find_all(text=True)
     return relevant_text_tags
 
 

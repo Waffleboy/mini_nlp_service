@@ -6,7 +6,7 @@
 
 This is a NLP Microservice that can be rapidly deployed via Docker that does 3 main things once hosted:
 
-1. Scrape a provided url and detect entities using standard NLP packagages via `/scrape/{url}`. The default package is `SpaCy` as the industry standard.
+1. Scrape a provided url and detect entities using standard NLP packages via `/scrape/{url}`. The default package is `SpaCy` as the industry standard.
 2. View all results currently in the database via `/entities`
 3. View text with specific entities via `/entities/{entity}`
 

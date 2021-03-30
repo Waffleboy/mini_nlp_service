@@ -35,8 +35,8 @@ class TestCoreService:
         assert(core_service.determine_input_handler_for_url(
             csv_url) == core_service.csv_handler)
 
-    def test_extract_body_tags(self, example_soup_data):
-        assert (core_service.extract_body_tags(
+    def test_extract_tags(self, example_soup_data):
+        assert (core_service.extract_tags(
             example_soup_data) == ['test tag', 'test 2'])
 
     def test_scrape_link(self):

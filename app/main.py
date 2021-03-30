@@ -29,9 +29,11 @@ def read_root():
 
 
 @app.get("/scrape/{url:path}", tags=['get_data'])
-def scrape_url(url: str):
-    """This endpoint initiates the scraping for a particular URL.
+def scrape_url(url: str, xpaths_delimited_by_semicolon: str = ''):
+    """This endpoint initiates the scraping for a particular URL. Will scrape the entire body by default
     eg, /scrape/https://careers.gic.com.sg/job/Singapore-Associate%2C-Machine-Learning-Engineer/638994801/
+    Use optional parameter xpaths_delimited_by_semicolon to pinpoint specific sections within the body if
+    its HTML based.
 
     Args:
         url (str): url to scrape
@@ -42,11 +44,18 @@ def scrape_url(url: str):
         "stored",
         "requested}
     """
+    # TODO: Augment with option to choose what preprocessing to run too
     logger.debug("Received scrape request for url {}".format(url))
     decoded_url = unquote(url)
     if helper.valid_url(decoded_url):
+        xpaths = []
+        if xpaths_delimited_by_semicolon:
+            xpaths = helper.validate_and_combine_xpaths(
+                xpaths_delimited_by_semicolon)
+            if not xpaths:
+                return {"error": "invalid xpath format"}
         # TODO: should be a microservice, use celery to queue jobs
-        res = core_service.run(decoded_url)
+        res = core_service.run(decoded_url, xpaths)
         return res
     return {"error": "invalid url format"}
 

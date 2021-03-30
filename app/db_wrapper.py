@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 db = orm.Database()
+# change below for postgres, cockroachDB etc
 db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
 
 
@@ -26,9 +27,9 @@ def store_entity_results(list_of_entities, url=None):
                 entry['from_url'] = url
             LabelledEntity(**entry)
             stored += 1
-        except:
-            # log here
-            pass
+        except Exception as e:  # TODO: rewrite naked exception to specific clauses
+            logger.error(
+                "store_entity_results FAIL for list {} - Exception {}".format(list_of_entities, e))
 
     resp = {"success": False}
     if stored == len(list_of_entities):
@@ -36,8 +37,7 @@ def store_entity_results(list_of_entities, url=None):
 
     resp['stored'] = stored
     resp['requested'] = len(list_of_entities)
-    # commit etc handled automatically at the end.
-
+    # commit etc handled automatically at the end by pony orm
     return resp
 
 
