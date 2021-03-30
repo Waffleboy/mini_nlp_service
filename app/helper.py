@@ -3,6 +3,10 @@ This contains all the helper methods for the api
 """
 
 from urllib.parse import urlparse
+from lxml import etree
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def valid_url(url: str) -> bool:
@@ -29,6 +33,14 @@ def validate_and_combine_xpaths(xpaths_delimited_by_semicolon: str) -> list:
     """
     SKIP = {'', ' '}
     # TODO: Do more proper validation
-    xpaths = [x for x in xpaths_delimited_by_semicolon.split(
+    detected_xpaths = [x for x in xpaths_delimited_by_semicolon.split(
         ';') if x not in SKIP]
-    return xpaths
+
+    try:
+        [etree.XPath(x) for x in detected_xpaths]
+    except Exception as e:
+        logger.error(
+            "xpath detection failed for xpaths {} - {}".format(detected_xpaths, e))
+        return []  # failed
+
+    return detected_xpaths

@@ -82,6 +82,7 @@ def get_specific_entity(entity: str):
     Returns:
         [type]: [description]
     """
+    # THIS SHOULD BE A SUBSET OF get_all_entities. Only putting it here cause the doc specifically requests it.
     logger.debug(
         "Received get_specific_entity request for entity {}".format(entity))
     entity = entity.upper()
