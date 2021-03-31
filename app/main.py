@@ -32,6 +32,8 @@ def read_root():
 def scrape_url(url: str, xpaths_delimited_by_semicolon: str = ''):
     """This endpoint initiates the scraping for a particular URL. Will scrape the entire body by default
     eg, /scrape/https://careers.gic.com.sg/job/Singapore-Associate%2C-Machine-Learning-Engineer/638994801/
+
+    [NOT ACTIVE YET - FOR IMPLEMENTATION]
     Use optional parameter xpaths_delimited_by_semicolon to pinpoint specific sections within the body if
     its HTML based.
 
