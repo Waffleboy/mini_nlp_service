@@ -28,7 +28,7 @@ def read_root():
             "instructions": '/scrape/{url} to scrape a url.\n/entities to get all scraped entities with labels\n/entitites/{entity} to get specific entities'}
 
 
-@app.get("/scrape/{url:path}", tags=['get_data'])
+@app.get("/scrape", tags=['get_data'])
 def scrape_url(url: str, xpaths_delimited_by_semicolon: str = ''):
     """This endpoint initiates the scraping for a particular URL. Will scrape the entire body by default
     eg, /scrape/https://careers.gic.com.sg/job/Singapore-Associate%2C-Machine-Learning-Engineer/638994801/
@@ -39,6 +39,7 @@ def scrape_url(url: str, xpaths_delimited_by_semicolon: str = ''):
 
     Args:
         url (str): url to scrape
+        xpaths_delimited_by_semicolon (str, optional): [description]. Defaults to ''.
 
     Returns:
         [json]: Outcome of the request with the following keys
@@ -59,7 +60,7 @@ def scrape_url(url: str, xpaths_delimited_by_semicolon: str = ''):
         # TODO: should be a microservice, use celery to queue jobs
         res = core_service.run(decoded_url, xpaths)
         return res
-    return {"error": "invalid url format"}
+    return {"error": "invalid url format. please use in the form of /scrape/{url}. eg, /scrape/http://www.random.com"}
 
 
 @app.get("/entities", tags=['read_data'])

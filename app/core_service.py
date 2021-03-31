@@ -31,7 +31,7 @@ def run(urls: list, xpaths: list = []) -> list:
         logger.debug("Running scraping for url {}".format(url))
         # determine url type and get appropriate handler for it.
         handler = determine_input_handler_for_url(url)
-        res = handler(url, {"xpaths": xpaths})
+        res = handler(url, **{"xpaths": xpaths})
         # extract entities in text
         list_of_entities = nlp_library.extract_entities(res)
         logger.debug("list of entities detected: {}".format(list_of_entities))
